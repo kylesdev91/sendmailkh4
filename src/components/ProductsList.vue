@@ -26,7 +26,7 @@ export default {
         emailBody: content,
         orderTotal: 10,
       };
-      axios.post('/api/sendmail2', formData).then((response) => {
+      axios.post('/api/sendmail4', formData).then((response) => {
         console.log(response);
       });
     },
