@@ -1,6 +1,14 @@
 <template>
   <div>
     <button @click="sendEmail">Email</button>
+    <div>
+      <a v-if="userInfo" :href="`/.auth/logout`">Logout</a>
+      <a v-if="!userInfo" :href="`/.auth/login/aad`">Login</a>
+    </div>
+  </div>
+  <div class="user" v-if="userInfo">
+    <p>Welcome</p>
+    <p>{{ userInfo.userDetails }}</p>
   </div>
   <h2>{{ product.id }}</h2>
   <h2>{{ product.name }}</h2>
@@ -13,8 +21,21 @@ export default {
   data() {
     return {
       items: items,
+      userInfo: {
+        type: Object,
+        default() {},
+      },
     };
   },
+  computed: {
+    products() {
+      return this.$store.getters.cartItems;
+    },
+  },
+  async created() {
+    this.userInfo = await this.getUserInfo();
+  },
+
   props: ['product'],
   methods: {
     sendEmail() {
@@ -29,6 +50,20 @@ export default {
       axios.post('/api/sendmail4', formData).then((response) => {
         console.log(response);
       });
+    },
+    login() {
+      this.$router.push('/.auth/login/aad');
+    },
+    async getUserInfo() {
+      try {
+        const response = await fetch('/.auth/me');
+        const payload = await response.json();
+        const { clientPrincipal } = payload;
+        return clientPrincipal;
+      } catch (error) {
+        console.error('No profile could be found');
+        return undefined;
+      }
     },
   },
 };
